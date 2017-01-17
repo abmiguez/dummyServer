@@ -45,7 +45,7 @@ public class ServerThread extends Thread {
 	    		    }	    		    
 	    		    message = "{\"status\": 200, \"success\": true, \"becalm_key\":\""+REST_API_KEY+"\", \"data\": {"+
 		  					"\"state\":\""+state+"\", \"version\":\"4.4.3\", \"version_changes\":\"Description of changes\", "+
-		  					"\"max_analizable_documents\":\"515\"} }";
+		  					"\"max_analyzable_documents\":\"515\"} }";
 		  			out.writeObject(message);
 			        out.flush();
 		  			break;
