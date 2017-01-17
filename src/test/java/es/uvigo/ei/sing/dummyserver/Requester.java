@@ -1,6 +1,7 @@
 package es.uvigo.ei.sing.dummyserver;
 
-import static es.uvigo.ei.sing.dummyserver.Constants.PORT;
+import static es.uvigo.ei.sing.dummyserver.Constants.SERVERPORT;
+import static es.uvigo.ei.sing.dummyserver.Constants.REQUESTERPORT;
 import static es.uvigo.ei.sing.dummyserver.Constants.REQUEST_SECRET_KEY;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
@@ -25,8 +26,8 @@ public class Requester extends TestCase {
     	boolean listening = true;
 
         try {
-            serverSocket = new ServerSocket(PORT);
-	        System.out.println("client> Server started at port " + PORT);
+            serverSocket = new ServerSocket(REQUESTERPORT);
+	        System.out.println("client> Server started at port " + REQUESTERPORT);
 	        request().exceptionally(err -> {
 				System.out.println("Error while init socket: " + err);
 				return null;
@@ -48,8 +49,8 @@ public class Requester extends TestCase {
     private CompletableFuture<Void> request() throws IOException {
     	return runAsync(() -> { 
     		try{    		
-        		requestSocket = new Socket("localhost", PORT);
-                System.out.println("client> Connected to localhost in port " + PORT);
+        		requestSocket = new Socket("localhost", SERVERPORT);
+                System.out.println("client> Connected to localhost in port " + SERVERPORT);
                 
                 out = new ObjectOutputStream(requestSocket.getOutputStream());
                 out.flush();
