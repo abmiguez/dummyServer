@@ -13,7 +13,7 @@ The Dummy Server is designed to help researchers and developers to build a simpl
 * [BeCalm Metaserver](http://www.becalm.eu/ "BeCalm metaserver")
  
 ### Quick install ###
-Clone the repository and make a JAR or simply download the most recent release. Then, open a terminal and execute the following command to start the Server:
+Clone the repository and make a JAR (select the main class Server) or simply download the most recent release. Then, open a terminal and execute the following command to start the Server:
 
 `java [-Xmx2G] [-Xms256M] -server -jar dummyserver.jar`
 
