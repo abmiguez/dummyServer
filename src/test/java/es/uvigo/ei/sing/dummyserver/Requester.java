@@ -2,12 +2,11 @@ package es.uvigo.ei.sing.dummyserver;
 
 import junit.framework.TestCase;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -17,8 +16,8 @@ import static java.util.concurrent.CompletableFuture.runAsync;
 public class Requester extends TestCase {
     private ServerSocket serverSocket;
     private Socket requestSocket;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private PrintWriter out;
+    private BufferedReader in;
 
     public void testRequest() {
         boolean listening = true;
@@ -34,7 +33,7 @@ public class Requester extends TestCase {
             while (listening)
                 new ClientThread(serverSocket.accept()).start();
 
-            System.out.println("server> Server stoped");
+            System.out.println("server> Server stopped");
 
             serverSocket.close();
         } catch (IOException e) {
@@ -44,15 +43,15 @@ public class Requester extends TestCase {
         assertTrue(true);
     }
 
-    private CompletableFuture<Void> request() throws IOException {
+    private CompletableFuture<Void> request() {
         return runAsync(() -> {
             try {
                 requestSocket = new Socket("localhost", SERVERPORT);
                 System.out.println("client> Connected to localhost in port " + SERVERPORT);
 
-                out = new ObjectOutputStream(requestSocket.getOutputStream());
+                out = new PrintWriter(new OutputStreamWriter(requestSocket.getOutputStream(), StandardCharsets.UTF_8));
                 out.flush();
-                in = new ObjectInputStream(requestSocket.getInputStream());
+                in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
 
                 // Use a random value to request one of the two methods
                 final Random random = new Random();
@@ -61,19 +60,15 @@ public class Requester extends TestCase {
                     method = "getAnnotations";
                 final String petition = "{\"name\":\"BeCalm\", \"method\":\"" + method + "\", \"becalm_key\":\"" + REQUEST_SECRET_KEY + "\"," +
                         "\"custom_parameters\" :{\"example\":true}, \"parameters\" : {} }";
-                out.writeObject(petition);
-                out.flush();
+                Functions.writeHeadersAndMessage(out, petition);
 
                 System.out.println("client> " + petition);
 
-                System.out.println("server> " + (String) in.readObject());
-
+                System.out.println("server> " + Functions.parseRequest(in));
             } catch (UnknownHostException unknownHost) {
                 System.err.println("client> You are trying to connect to an unknown host!");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             } finally {
                 try {
                     in.close();
@@ -96,15 +91,13 @@ public class Requester extends TestCase {
 
         public void run() {
             try {
-                final ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
+                final PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                 out.flush();
-                final ObjectInputStream in = new ObjectInputStream(this.socket.getInputStream());
-                System.out.println("server> " + (String) in.readObject());
+                final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                System.out.println("server> " + Functions.parseRequest(in));
                 final String ok = "{\"status\": 200, \"success\": true, \"becalm_key\":\"" + REQUEST_SECRET_KEY + "\", \"data\": {} }";
-                out.writeObject(ok);
-                out.flush();
+                Functions.writeHeadersAndMessage(out, ok);
                 System.out.println("client> " + ok);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
