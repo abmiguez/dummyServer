@@ -22,7 +22,7 @@ public class Server {
         // Keep listening until a request is received
         while (listening)
             new ServerThread(serverSocket.accept()).start();
-        System.out.println("server> Server stoped");
+        System.out.println("server> Server stopped");
 
         serverSocket.close();
     }
